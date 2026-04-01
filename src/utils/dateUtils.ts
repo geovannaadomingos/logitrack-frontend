@@ -41,3 +41,15 @@ export function formatBRDate(date: Date | string | null | undefined, fallback = 
   
   return dateObj.toLocaleDateString('pt-BR');
 }
+
+/**
+ * Converte uma data para o formato ISO local (YYYY-MM-DDTHH:mm:ss) sem timezone UTC.
+ * @param date - Objeto Date
+ * @returns String ISO ou null se inválida
+ */
+export function toLocalISOString(date: Date): string | null {
+  if (!date || isNaN(date.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+

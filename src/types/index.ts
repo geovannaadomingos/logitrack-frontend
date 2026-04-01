@@ -1,5 +1,6 @@
 export interface Trip {
   id?: number;
+  veiculoId?: number;
   veiculoPlaca?: string;
   veiculoModelo?: string;
   veiculoTipo?: string;
