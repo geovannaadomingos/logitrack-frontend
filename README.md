@@ -2,6 +2,30 @@
 
 LogiTrack é um frontend moderno e performático para gestão de frotas, desenvolvido com **React**, **TypeScript** e **Tailwind CSS**. O sistema consome uma API Spring Boot para fornecer visibilidade em tempo real sobre quilometragem, rankings de veículos, volumes por categoria, cronogramas de manutenção e projeções financeiras.
 
+## 📊 Funcionalidades Implementadas
+
+- **Dashboard de Analytics**: Visão consolidada com métricas críticas:
+  - **KM Total**: Soma de toda a quilometragem percorrida pela frota.
+  - **Volume por Categoria**: Distribuição de viagens entre veículos Leves e Pesados.
+  - **Ranking de Veículos**: Listagem dos veículos com maior rodagem (Top KM).
+  - **Cronograma de Manutenção**: Próximas 5 manutenções preventivas/corretivas agendadas.
+  - **Projeção Financeira**: Estimativa de custos para o mês atual baseada em dados históricos.
+- **Gestão de Viagens**:
+  - Listagem completa de viagens com suporte a **paginação via backend**.
+  - Fluxo de criação de nova viagem com validação de dados.
+
+## 🔌 Endpoints Consumidos
+
+A aplicação consome os seguintes recursos da API REST:
+
+- `GET /dashboard/total-km`: Recupera a quilometragem total e resumo de viagens.
+- `GET /dashboard/volume-por-tipo`: Agrupamento de volume por categoria de veículo.
+- `GET /dashboard/ranking-veiculos`: Ranking ordenado de veículos por KM.
+- `GET /dashboard/proximas-manutencoes`: Lista de manutenções futuras.
+- `GET /dashboard/projecao-custo`: Dados para o gráfico/card financeiro.
+- `GET /viagens`: Listagem paginada de todas as operações.
+- `POST /viagens`: Registro de novos trajetos no sistema.
+
 ##  Como Executar o Projeto Localmente
 
 Siga os passos abaixo para configurar e rodar o frontend em sua máquina:
@@ -61,6 +85,26 @@ O projeto segue uma estrutura organizada por responsabilidades:
 ### Decisões de Design
 - **Single Page Application (SPA)**: Utilização de `react-router-dom` para navegação instantânea sem recarregamento de página.
 - **Fallbacks Visuais**: Implementação de estados de "Sem Dados", "Carregando" e tratamento de erros para garantir que a interface nunca pareça quebrada, mesmo com baixa conectividade ou ausência de registros na API.
+
+## ⚠️ Tratamento de Erros e Estados
+
+- **Loading States**: Feedback visual (spinners/esqueletos) durante o carregamento de dados da API.
+- **Empty States**: Mensagens amigáveis e orientações quando não há dados retornados para rankings ou manutenções.
+- **Fallback de Dados Inválidos**: Implementação de tratamento rigoroso para campos nulos ou corrompidos, exibindo "-" ou valores padrão para evitar quebras na UI.
+- **Formatação de Dados**: Parsing robusto de datas (PT-BR) e moedas (BRL) para garantir uma experiência localizada e precisa.
+
+## 🧠 Desafios Técnicos Resolvidos
+
+- **Padronização de Datas (ISO vs BR)**: Implementação de uma camada utilitária de parsing para suportar formatos tradicionais brasileiros (dd/MM/yyyy) vindos de inputs/API e convertê-los para objetos `Date` válidos em browsers.
+- **Gerenciamento de Tipagem com API Real**: Sincronização de interfaces TypeScript com os DTOs do Spring Boot, garantindo que o contrato entre as camadas fosse respeitado.
+- **Integração com Paginação Backend**: Implementação de controle de estado para navegação entre páginas, consumindo metadados de paginação padrão do Spring Data.
+
+## 🎯 Diferenciais
+
+- **Arquitetura Escalável**: Separação clara entre serviços (API), utilitários, tipos e componentes.
+- **Segurança com TypeScript**: Uso extensivo de tipos para reduzir erros em tempo de execução.
+- **UI Premium**: Design moderno com Tailwind CSS focado em usabilidade e estética (Clean UI).
+- **Performance**: Uso de Vite para builds otimizados e bundle reduzido.
 
 ---
 
