@@ -99,8 +99,8 @@ export function Dashboard() {
           <div>
             <p className="text-sm font-medium text-slate-500">Custo Estimado</p>
             <h3 className="text-2xl font-bold text-slate-800">
-              {cost?.valorTotal 
-                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost.valorTotal) 
+              {cost?.total && cost.total > 0
+                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost.total) 
                 : <span className="text-xl text-slate-400">R$ 0,00 <span className="text-xs font-normal">(sem dados no período)</span></span>}
             </h3>
           </div>
@@ -185,7 +185,7 @@ export function Dashboard() {
             <tbody>
               {maintenances.map((item, i) => (
                 <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-4 font-medium text-slate-700">{item?.veiculo || '-'}</td>
+                  <td className="py-3 px-4 font-medium text-slate-700">{item?.placa} - {item?.modelo}</td>
                   <td className="py-3 px-4 text-slate-600">
                     {item?.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}
                   </td>

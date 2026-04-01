@@ -23,13 +23,14 @@ export interface VehicleRanking {
 }
 
 export interface MaintenanceEntry {
-  veiculo: string;
+  placa: string;
+  modelo: string;
   data: string;
   servico: string;
 }
 
 export interface CostProjection {
-  valorTotal: number;
+  total: number;
 }
 
 export interface VolumeByType {
