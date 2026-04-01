@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { getDashboardTotalKm, getDashboardRanking, getDashboardVolume } from '../services/api';
-import type { DashboardMetrics, VehicleRanking, VolumeByType } from '../types';
-import { Route, Activity, BarChart3, AlertCircle } from 'lucide-react';
+import { getDashboardTotalKm, getDashboardRanking, getDashboardVolume, getUpcomingMaintenances, getCostProjection } from '../services/api';
+import type { DashboardMetrics, VehicleRanking, VolumeByType, MaintenanceEntry, CostProjection } from '../types';
+import { Route, Activity, BarChart3, AlertCircle, Calendar, DollarSign } from 'lucide-react';
 
 export function Dashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [ranking, setRanking] = useState<VehicleRanking[]>([]);
   const [volume, setVolume] = useState<VolumeByType[]>([]);
+  const [maintenances, setMaintenances] = useState<MaintenanceEntry[]>([]);
+  const [cost, setCost] = useState<CostProjection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,14 +16,18 @@ export function Dashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [metricsRes, rankingRes, volumeRes] = await Promise.all([
+        const [metricsRes, rankingRes, volumeRes, maintenanceRes, costRes] = await Promise.all([
           getDashboardTotalKm(),
           getDashboardRanking(),
-          getDashboardVolume()
+          getDashboardVolume(),
+          getUpcomingMaintenances(),
+          getCostProjection()
         ]);
         setMetrics(metricsRes || null);
         setRanking(rankingRes || []);
         setVolume(volumeRes || []);
+        setMaintenances(maintenanceRes || []);
+        setCost(costRes || null);
       } catch (err) {
         setError('Erro ao carregar os dados do painel. Verifique se a API está rodando.');
       } finally {
@@ -55,14 +61,14 @@ export function Dashboard() {
       <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Visão Geral</h1>
       
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow">
           <div className="p-4 bg-blue-50 rounded-lg mr-4">
             <Route className="text-brand-600" size={28} />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">KM Total Percorrido</p>
-            <h3 className="text-3xl font-bold text-slate-800">{metrics?.totalKm?.toLocaleString() ?? 0} <span className="text-lg text-slate-400 font-semibold">km</span></h3>
+            <p className="text-sm font-medium text-slate-500">KM Total</p>
+            <h3 className="text-2xl font-bold text-slate-800">{metrics?.totalKm?.toLocaleString() ?? 0} <span className="text-xs text-slate-400 font-semibold uppercase">km</span></h3>
           </div>
         </div>
         
@@ -71,8 +77,8 @@ export function Dashboard() {
             <Activity className="text-emerald-600" size={28} />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Total de Viagens</p>
-            <h3 className="text-3xl font-bold text-slate-800">{metrics?.totalViagens?.toLocaleString() ?? 0}</h3>
+            <p className="text-sm font-medium text-slate-500">Viagens</p>
+            <h3 className="text-2xl font-bold text-slate-800">{metrics?.totalViagens?.toLocaleString() ?? 0}</h3>
           </div>
         </div>
 
@@ -82,7 +88,19 @@ export function Dashboard() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Categorias</p>
-            <h3 className="text-3xl font-bold text-slate-800">{volume.length}</h3>
+            <h3 className="text-2xl font-bold text-slate-800">{volume.length}</h3>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow">
+          <div className="p-4 bg-amber-50 rounded-lg mr-4">
+            <DollarSign className="text-amber-600" size={28} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500">Custo Estimado</p>
+            <h3 className="text-2xl font-bold text-slate-800">
+              {cost?.valorTotal ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost.valorTotal) : 'R$ 0,00'}
+            </h3>
           </div>
         </div>
       </div>
@@ -97,7 +115,10 @@ export function Dashboard() {
                  <tr className="border-b border-slate-200">
                    <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">Pos</th>
                    <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Placa</th>
-                   <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Modelo</th>
+                                       <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Modelo</th>
+                    {ranking.some(r => r.kmPercorrida !== undefined) && (
+                      <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">KM</th>
+                    )}
                    <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Tipo</th>
                  </tr>
                </thead>
@@ -107,6 +128,11 @@ export function Dashboard() {
                       <td className="py-3 px-4 font-bold text-brand-600 italic">{i + 1}º</td>
                       <td className="py-3 px-4 font-medium text-slate-700">{item?.placa || '-'}</td>
                       <td className="py-3 px-4 text-slate-600">{item?.modelo || '-'}</td>
+                      {ranking.some(r => r.kmPercorrida !== undefined) && (
+                        <td className="py-3 px-4 text-slate-600 font-semibold text-right">
+                          {item?.kmPercorrida?.toLocaleString() ?? 0}
+                        </td>
+                      )}
                       <td className="py-3 px-4 text-slate-600 font-semibold text-right">{item?.tipo || '-'}</td>
                     </tr>
                   ))}
@@ -136,6 +162,43 @@ export function Dashboard() {
                 <div className="py-8 text-center text-slate-400">Nenhum dado encontrado</div>
              )}
            </div>
+        </div>
+      </div>
+
+      {/* Maintenance Schedule Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+        <div className="flex items-center mb-6 px-1">
+          <Calendar className="text-brand-600 mr-2" size={20} />
+          <h2 className="text-lg font-bold text-slate-800">Cronograma de Manutenção</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200">
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Veículo</th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Data</th>
+                <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Serviço</th>
+              </tr>
+            </thead>
+            <tbody>
+              {maintenances.map((item, i) => (
+                <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-4 font-medium text-slate-700">{item?.veiculo || '-'}</td>
+                  <td className="py-3 px-4 text-slate-600">
+                    {item?.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}
+                  </td>
+                  <td className="py-3 px-4 text-slate-600 font-semibold text-right">{item?.servico || '-'}</td>
+                </tr>
+              ))}
+              {maintenances.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-12 text-center text-slate-400">
+                    Nenhuma manutenção programada encontrada
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

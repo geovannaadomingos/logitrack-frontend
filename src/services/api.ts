@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Trip, DashboardMetrics, VehicleRanking, VolumeByType, PageResponse } from '../types';
+import type { Trip, DashboardMetrics, VehicleRanking, VolumeByType, PageResponse, MaintenanceEntry, CostProjection } from '../types';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
@@ -20,6 +20,16 @@ export const getDashboardRanking = async (): Promise<VehicleRanking[]> => {
 
 export const getDashboardVolume = async (): Promise<VolumeByType[]> => {
   const response = await api.get<VolumeByType[]>('/dashboard/volume-por-tipo');
+  return response.data;
+};
+
+export const getUpcomingMaintenances = async (): Promise<MaintenanceEntry[]> => {
+  const response = await api.get<MaintenanceEntry[]>('/dashboard/proximas-manutencoes');
+  return response.data;
+};
+
+export const getCostProjection = async (): Promise<CostProjection> => {
+  const response = await api.get<CostProjection>('/dashboard/projecao-custo');
   return response.data;
 };
 

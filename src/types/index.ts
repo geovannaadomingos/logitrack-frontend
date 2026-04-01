@@ -19,6 +19,17 @@ export interface VehicleRanking {
   placa: string;
   modelo: string;
   tipo: string;
+  kmPercorrida?: number;
+}
+
+export interface MaintenanceEntry {
+  veiculo: string;
+  data: string;
+  servico: string;
+}
+
+export interface CostProjection {
+  valorTotal: number;
 }
 
 export interface VolumeByType {
