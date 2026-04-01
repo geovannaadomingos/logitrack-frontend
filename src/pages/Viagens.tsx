@@ -3,6 +3,7 @@ import { getTrips } from '../services/api';
 import type { Trip, PageResponse } from '../types';
 import { Plus, ChevronLeft, ChevronRight, AlertCircle, Truck } from 'lucide-react';
 import { NovaViagemModal } from '../components/NovaViagemModal';
+import { parseBRDate } from '../utils/dateUtils';
 
 export function Viagens() {
   const [data, setData] = useState<PageResponse<Trip> | null>(null);
@@ -44,13 +45,13 @@ export function Viagens() {
     if (page === 0) {
       fetchTrips(0);
     } else {
-      setPage(0); // This will trigger useEffect
+      setPage(0);
     }
   };
 
   const formatDate = (dateString: string) => {
-    const d = new Date(dateString);
-    if (isNaN(d.getTime())) return dateString;
+    const d = parseBRDate(dateString);
+    if (!d) return dateString || '-';
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
@@ -136,7 +137,6 @@ export function Viagens() {
           )}
         </div>
 
-        {/* Pagination */}
         {!loading && data && data.totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/50 mt-auto">
             <span className="text-sm text-slate-500">

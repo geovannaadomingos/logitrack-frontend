@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getDashboardTotalKm, getDashboardRanking, getDashboardVolume, getUpcomingMaintenances, getCostProjection } from '../services/api';
 import type { DashboardMetrics, VehicleRanking, VolumeByType, MaintenanceEntry, CostProjection } from '../types';
 import { Route, Activity, BarChart3, AlertCircle, Calendar, DollarSign } from 'lucide-react';
+import { parseBRDate } from '../utils/dateUtils';
 
 export function Dashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -60,7 +61,6 @@ export function Dashboard() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Visão Geral</h1>
       
-      {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex items-center hover:shadow-md transition-shadow">
           <div className="p-4 bg-blue-50 rounded-lg mr-4">
@@ -108,7 +108,6 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Ranking List */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
            <h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Ranking de Veículos</h2>
            <div className="overflow-x-auto">
@@ -148,7 +147,6 @@ export function Dashboard() {
            </div>
         </div>
 
-        {/* Volume List */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
            <h2 className="text-lg font-bold text-slate-800 mb-4 px-1">Volume por Tipo</h2>
            <div className="space-y-4 mt-2">
@@ -167,7 +165,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Maintenance Schedule Section */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
         <div className="flex items-center mb-6 px-1">
           <Calendar className="text-brand-600 mr-2" size={20} />
@@ -187,7 +184,7 @@ export function Dashboard() {
                 <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                   <td className="py-3 px-4 font-medium text-slate-700">{item?.placa} - {item?.modelo}</td>
                   <td className="py-3 px-4 text-slate-600">
-                    {item?.data ? new Date(item.data).toLocaleDateString('pt-BR') : '-'}
+                    {item?.data ? parseBRDate(item.data)?.toLocaleDateString('pt-BR') || '-' : '-'}
                   </td>
                   <td className="py-3 px-4 text-slate-600 font-semibold text-right">{item?.servico || '-'}</td>
                 </tr>
