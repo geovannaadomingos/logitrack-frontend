@@ -2,7 +2,7 @@
 
 LogiTrack é um frontend moderno e performático para gestão de frotas, desenvolvido com **React**, **TypeScript** e **Tailwind CSS**. O sistema consome uma API Spring Boot para fornecer visibilidade em tempo real sobre quilometragem, rankings de veículos, volumes por categoria, cronogramas de manutenção e projeções financeiras.
 
-## 🚀 Como Executar o Projeto Localmente
+##  Como Executar o Projeto Localmente
 
 Siga os passos abaixo para configurar e rodar o frontend em sua máquina:
 
@@ -43,7 +43,7 @@ Siga os passos abaixo para configurar e rodar o frontend em sua máquina:
 
 ---
 
-## 🛠️ Decisões Técnicas e Arquitetura
+##  Decisões Técnicas e Arquitetura
 
 ### Ferramentas Escolhidas
 - **Vite**: Escolhido como build tool pela sua velocidade extrema de HMR (Hot Module Replacement) e configuração simplificada para TypeScript.
@@ -64,7 +64,7 @@ O projeto segue uma estrutura organizada por responsabilidades:
 
 ---
 
-## 📦 Integração com o Backend
+##  Integração com o Backend
 
 Este frontend foi desenvolvido para atuar em total sinergia com o [LogiTrack Backend](https://github.com/geovannaadomingos/logitrack-backend), um ecossistema robusto construído com:
 - **Spring Boot 3.4**: Framework principal para a API REST.
@@ -72,20 +72,6 @@ Este frontend foi desenvolvido para atuar em total sinergia com o [LogiTrack Bac
 - **Flyway**: Gerenciamento de migrações de banco de dados.
 
 A comunicação é feita de forma assíncrona, respeitando os contratos de dados (DTOs) definidos pelo servidor, o que permite uma experiência de usuário fluida e baseada em dados reais.
-
----
-
-## 🗄️ Modelagem de Dados e Alinhamento com Backend
-
-Embora este seja um projeto Frontend, foi realizado um intenso trabalho de **alinhamento de modelos** para garantir compatibilidade 100% com a API Spring Boot pré-existente.
-
-### Justificativas de Mudanças nos Tipos
-Para evitar erros de `undefined` e garantir que os dados popula-se corretamente a UI, as interfaces do frontend foram ajustadas para os seguintes nomes de campos (conforme retorno do backend):
-- **Trips**: Uso de `kmPercorrida`, `dataSaida`, `dataChegada`.
-- **Maintenance**: Utilização de `placa` e `modelo` como campos distintos.
-- **Finance**: Uso de `total` como campo principal de valor.
-
-*Nota: Não foram realizados scripts de alteração de banco de dados diretamente pelo frontend, apenas o mapeamento exato dos DTOs consumidos.*
 
 ---
 
