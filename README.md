@@ -29,6 +29,7 @@ A aplicação consome os seguintes recursos da API REST:
 - `POST /viagens`: Registro de novos trajetos no sistema.
 - `PUT /viagens/{id}`: Atualização de dados de uma viagem existente.
 - `DELETE /viagens/{id}`: Remoção definitiva de um registro de viagem.
+- `GET /veiculos`: Listagem de veículos cadastrados para seleção em novos trajetos.
 
 ##  Como Executar o Projeto Localmente
 
@@ -101,6 +102,7 @@ O projeto segue uma estrutura organizada por responsabilidades:
 
 - **Padronização de Datas (ISO vs BR)**: Implementação de uma camada utilitária de parsing para suportar formatos tradicionais brasileiros (dd/MM/yyyy) vindos de inputs/API e convertê-los para objetos `Date` válidos em browsers.
 - **Gerenciamento de Tipagem com API Real**: Sincronização de interfaces TypeScript com os DTOs do Spring Boot, garantindo que o contrato entre as camadas fosse respeitado.
+- **Sincronização de Veículos**: Substituição progressiva de dados mockados por integração real com o banco de dados de veículos.
 - **Integração com Paginação Backend**: Implementação de controle de estado para navegação entre páginas, consumindo metadados de paginação padrão do Spring Data.
 
 ##  Diferenciais
