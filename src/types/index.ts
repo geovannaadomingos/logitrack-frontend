@@ -1,0 +1,35 @@
+export interface Trip {
+  id?: number;
+  veiculoPlaca?: string;
+  veiculoModelo?: string;
+  veiculoTipo?: string;
+  dataSaida: string;
+  dataChegada: string;
+  origem?: string;
+  destino?: string;
+  kmPercorrida: number;
+}
+
+export interface DashboardMetrics {
+  totalKm: number;
+  totalViagens: number;
+}
+
+export interface VehicleRanking {
+  placa: string;
+  modelo: string;
+  tipo: string;
+}
+
+export interface VolumeByType {
+  tipo: string;
+  volume: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+}
