@@ -10,9 +10,11 @@ LogiTrack é um frontend para gestão de frotas, desenvolvido com **React**, **T
   - **Ranking de Veículos**: Listagem dos veículos com maior rodagem (Top KM).
   - **Cronograma de Manutenção**: Próximas 5 manutenções preventivas/corretivas agendadas.
   - **Projeção Financeira**: Estimativa de custos para o mês atual baseada em dados históricos.
-- **Gestão de Viagens**:
+- **Gestão de Viagens (CRUD)**:
   - Listagem completa de viagens com suporte a **paginação via backend**.
-  - Fluxo de criação de nova viagem com validação de dados.
+  - Fluxo de criação e **edição** de viagens com preenchimento dinâmico.
+  - **Exclusão de registros** com confirmação de segurança.
+  - **Validação de Regras de Negócio**: Impedimento de datas no passado e garantia de ordem cronológica (saída < chegada).
 
 ##  Endpoints Consumidos
 
@@ -25,6 +27,8 @@ A aplicação consome os seguintes recursos da API REST:
 - `GET /dashboard/projecao-custo`: Dados para o gráfico/card financeiro.
 - `GET /viagens`: Listagem paginada de todas as operações.
 - `POST /viagens`: Registro de novos trajetos no sistema.
+- `PUT /viagens/{id}`: Atualização de dados de uma viagem existente.
+- `DELETE /viagens/{id}`: Remoção definitiva de um registro de viagem.
 
 ##  Como Executar o Projeto Localmente
 
