@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getTrips } from '../services/api';
+import { getTrips, deleteTrip } from '../services/api';
 import type { Trip, PageResponse } from '../types';
-import { Plus, ChevronLeft, ChevronRight, AlertCircle, Truck } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, AlertCircle, Truck, Edit, Trash2 } from 'lucide-react';
 import { NovaViagemModal } from '../components/NovaViagemModal';
 import { parseBRDate } from '../utils/dateUtils';
 
@@ -11,6 +11,7 @@ export function Viagens() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tripToEdit, setTripToEdit] = useState<Trip | null>(null);
 
   const fetchTrips = async (currentPage: number) => {
     try {
@@ -42,11 +43,31 @@ export function Viagens() {
   };
 
   const handleSuccess = () => {
-    if (page === 0) {
-      fetchTrips(0);
-    } else {
-      setPage(0);
+    fetchTrips(page);
+  };
+
+  const handleEdit = (trip: Trip) => {
+    setTripToEdit(trip);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Tem certeza que deseja excluir esta viagem?')) {
+      try {
+        setLoading(true);
+        await deleteTrip(id);
+        await fetchTrips(page);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Erro ao excluir a viagem.');
+      } finally {
+        setLoading(false);
+      }
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setTripToEdit(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -63,7 +84,10 @@ export function Viagens() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Viagens</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setTripToEdit(null);
+            setIsModalOpen(true);
+          }}
           className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center"
         >
           <Plus size={20} className="mr-2" />
@@ -98,11 +122,12 @@ export function Viagens() {
                   <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Rota</th>
                   <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Período</th>
                   <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Distância</th>
+                  <th className="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.content.map((trip: Trip, i: number) => (
-                  <tr key={trip.id || i} className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors group">
+                   <tr key={trip.id || i} className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors group">
                     <td className="py-4 px-6">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mr-3 group-hover:bg-brand-100 group-hover:text-brand-600 transition-colors">
@@ -129,6 +154,24 @@ export function Viagens() {
                     </td>
                     <td className="py-4 px-6 text-right font-medium text-slate-800">
                       {trip?.kmPercorrida?.toLocaleString() ?? 0} km
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <div className="flex items-center justify-center space-x-2">
+                        <button 
+                          onClick={() => handleEdit(trip)}
+                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-md transition-colors"
+                          title="Editar"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(trip.id!)}
+                          className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -164,8 +207,9 @@ export function Viagens() {
 
       <NovaViagemModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onSuccess={handleSuccess}
+        tripToEdit={tripToEdit}
       />
     </div>
   );

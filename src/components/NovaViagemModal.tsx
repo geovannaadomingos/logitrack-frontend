@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Trip } from '../types';
 import { X, Save } from 'lucide-react';
-import { createTrip } from '../services/api';
+import { createTrip, updateTrip } from '../services/api';
+import { toLocalISOString } from '../utils/dateUtils';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  tripToEdit?: Trip | null;
 }
 
 const MOCK_VEHICLES = [
-  { placa: 'ABC-1234', modelo: 'Volvo FH 540', tipo: 'PESADO' },
-  { placa: 'XYZ-9876', modelo: 'Scania R450', tipo: 'PESADO' },
-  { placa: 'LMN-4567', modelo: 'Mercedes-Benz Actros', tipo: 'PESADO' },
-  { placa: 'KJH-1122', modelo: 'Iveco Stralis 460', tipo: 'PESADO' },
-  { placa: 'HGT-3344', modelo: 'VW Meteor 29.520', tipo: 'PESADO' },
-  { placa: 'AAA-0000', modelo: 'Fiorino 1.4', tipo: 'LEVE' }
+  { id: 1, placa: 'ABC-1234', modelo: 'Volvo FH 540', tipo: 'PESADO' },
+  { id: 2, placa: 'XYZ-9876', modelo: 'Scania R450', tipo: 'PESADO' },
+  { id: 3, placa: 'LMN-4567', modelo: 'Mercedes-Benz Actros', tipo: 'PESADO' },
+  { id: 4, placa: 'KJH-1122', modelo: 'Iveco Stralis 460', tipo: 'PESADO' },
+  { id: 5, placa: 'HGT-3344', modelo: 'VW Meteor 29.520', tipo: 'PESADO' },
+  { id: 6, placa: 'AAA-0000', modelo: 'Fiorino 1.4', tipo: 'LEVE' }
 ];
 
-export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
+export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Props) {
   const [formData, setFormData] = useState<Trip>({
+    veiculoId: MOCK_VEHICLES[0].id,
     veiculoPlaca: MOCK_VEHICLES[0].placa,
     veiculoModelo: MOCK_VEHICLES[0].modelo,
     veiculoTipo: MOCK_VEHICLES[0].tipo,
@@ -32,6 +35,30 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (tripToEdit) {
+      setFormData({
+        ...tripToEdit,
+        // Backend might use different date format, but we need YYYY-MM-DDTHH:mm for datetime-local
+        dataSaida: tripToEdit.dataSaida?.substring(0, 16) || '',
+        dataChegada: tripToEdit.dataChegada?.substring(0, 16) || '',
+      });
+    } else {
+      setFormData({
+        veiculoId: MOCK_VEHICLES[0].id,
+        veiculoPlaca: MOCK_VEHICLES[0].placa,
+        veiculoModelo: MOCK_VEHICLES[0].modelo,
+        veiculoTipo: MOCK_VEHICLES[0].tipo,
+        dataSaida: '',
+        dataChegada: '',
+        origem: '',
+        destino: '',
+        kmPercorrida: 0,
+      });
+    }
+    setError(null);
+  }, [tripToEdit, isOpen]);
+
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -42,6 +69,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
       if (selected) {
         setFormData(prev => ({
           ...prev,
+          veiculoId: selected.id,
           veiculoPlaca: selected.placa,
           veiculoModelo: selected.modelo,
           veiculoTipo: selected.tipo
@@ -62,25 +90,78 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
       setError('Por favor, preencha todos os campos corretamente.');
       return;
     }
+
+    const saida = new Date(formData.dataSaida);
+    const chegada = new Date(formData.dataChegada);
+
+    if (isNaN(saida.getTime()) || isNaN(chegada.getTime())) {
+      setError('Data de saída ou chegada inválida. Por favor, corrija o formato.');
+      return;
+    }
+
+    if (chegada <= saida) {
+      setError('A data de chegada deve ser posterior à data de saída.');
+      return;
+    }
+
+    // New validation: No past dates for new trips (unless editing)
+    if (!tripToEdit && saida < new Date()) {
+      setError('A data de saída não pode estar no passado.');
+      return;
+    }
+
+    const isoSaida = toLocalISOString(saida);
+    const isoChegada = toLocalISOString(chegada);
+
+    if (!isoSaida || !isoChegada) {
+      setError('Erro crítico de formatação de data. Tente novamente.');
+      return;
+    }
     
     try {
       setLoading(true);
       setError(null);
-      await createTrip(formData);
+
+      // Clean payload for backend
+      const payload = {
+        id: tripToEdit?.id,
+        veiculoId: formData.veiculoId,
+        dataSaida: isoSaida,
+        dataChegada: isoChegada,
+        origem: formData.origem,
+        destino: formData.destino,
+        kmPercorrida: formData.kmPercorrida
+      };
+
+      console.log('Sending payload:', payload);
+
+      if (tripToEdit?.id) {
+        await updateTrip(tripToEdit.id, payload as any);
+      } else {
+        await createTrip(payload as any);
+      }
+      
       onSuccess();
       onClose();
-    } catch (err) {
-      setError('Erro ao criar viagem. Tente novamente.');
+    } catch (err: any) {
+      console.error('API Error:', err);
+      const backendMessage = err.response?.data?.message;
+      setError(backendMessage || 'Verifique os dados informados');
     } finally {
       setLoading(false);
     }
   };
 
+  // Helper to get current time in YYYY-MM-DDTHH:mm format for 'min' attribute
+  const nowISO = new Date().toISOString().substring(0, 16);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-full">
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-slate-800">Nova Viagem</h2>
+          <h2 className="text-xl font-bold text-slate-800">
+            {tripToEdit ? 'Editar Viagem' : 'Nova Viagem'}
+          </h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={24} />
           </button>
@@ -88,7 +169,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
         
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-md border border-red-100">
+            <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-md border border-red-100 font-medium">
               {error}
             </div>
           )}
@@ -103,7 +184,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
                 {MOCK_VEHICLES.map((v) => (
-                  <option key={v.placa} value={v.placa}>{v.modelo} ({v.placa})</option>
+                  <option key={v.id} value={v.placa}>{v.modelo} ({v.placa})</option>
                 ))}
               </select>
             </div>
@@ -141,6 +222,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
                   name="dataSaida"
                   value={formData.dataSaida}
                   onChange={handleChange}
+                  min={tripToEdit ? undefined : nowISO}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 />
               </div>
@@ -151,6 +233,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
                   name="dataChegada"
                   value={formData.dataChegada}
                   onChange={handleChange}
+                  min={formData.dataSaida || nowISO}
                   className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 />
               </div>
@@ -189,7 +272,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess }: Props) {
               ) : (
                 <>
                   <Save size={18} className="mr-2" />
-                  Salvar
+                  {tripToEdit ? 'Atualizar' : 'Salvar'}
                 </>
               )}
             </button>
