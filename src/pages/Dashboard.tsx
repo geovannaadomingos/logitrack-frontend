@@ -99,7 +99,9 @@ export function Dashboard() {
           <div>
             <p className="text-sm font-medium text-slate-500">Custo Estimado</p>
             <h3 className="text-2xl font-bold text-slate-800">
-              {cost?.valorTotal ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost.valorTotal) : 'R$ 0,00'}
+              {cost?.valorTotal 
+                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cost.valorTotal) 
+                : <span className="text-xl text-slate-400">R$ 0,00 <span className="text-xs font-normal">(sem dados no período)</span></span>}
             </h3>
           </div>
         </div>
@@ -193,7 +195,7 @@ export function Dashboard() {
               {maintenances.length === 0 && (
                 <tr>
                   <td colSpan={3} className="py-12 text-center text-slate-400">
-                    Nenhuma manutenção programada encontrada
+                    Nenhuma manutenção encontrada
                   </td>
                 </tr>
               )}
