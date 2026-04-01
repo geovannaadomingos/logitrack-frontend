@@ -47,7 +47,6 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
             veiculoId: data[0].id,
             veiculoPlaca: data[0].placa,
             veiculoModelo: data[0].modelo,
-            veiculoTipo: data[0].tipo,
           }));
         }
       } catch (err) {
@@ -67,24 +66,9 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'veiculoPlaca') {
-      const selected = vehicles.find(v => v.placa === value);
-      if (selected) {
-        setFormData(prev => ({
-          ...prev,
-          veiculoId: selected.id,
-          veiculoPlaca: selected.placa,
-          veiculoModelo: selected.modelo,
-          veiculoTipo: selected.tipo
-        }));
-      }
-      return;
-    }
-
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'kmPercorrida' ? Number(value) : value,
+      [name]: name === 'veiculoId' || name === 'kmPercorrida' ? Number(value) : value,
     }));
   };
 
@@ -179,19 +163,19 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Veículo</label>
               <select
-                name="veiculoPlaca"
-                value={formData.veiculoPlaca}
+                name="veiculoId"
+                value={formData.veiculoId}
                 onChange={handleChange}
                 disabled={loadingVehicles}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:bg-slate-50"
               >
                 {loadingVehicles ? (
-                  <option disabled>Carregando veículos...</option>
+                  <option value={0} disabled>Carregando veículos...</option>
                 ) : vehicles.length === 0 ? (
-                  <option disabled>Nenhum veículo cadastrado</option>
+                  <option value={0} disabled>Nenhum veículo cadastrado</option>
                 ) : (
                   vehicles.map((v) => (
-                    <option key={v.id} value={v.placa}>{v.modelo} ({v.placa})</option>
+                    <option key={v.id} value={v.id}>{v.placa} - {v.modelo}</option>
                   ))
                 )}
               </select>
