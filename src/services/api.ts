@@ -43,4 +43,13 @@ export const createTrip = async (trip: Trip): Promise<Trip> => {
   return response.data;
 };
 
+export const updateTrip = async (id: number, trip: Trip): Promise<Trip> => {
+  const response = await api.put<Trip>(`/viagens/${id}`, trip);
+  return response.data;
+};
+
+export const deleteTrip = async (id: number): Promise<void> => {
+  await api.delete(`/viagens/${id}`);
+};
+
 export default api;
