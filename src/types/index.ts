@@ -1,3 +1,11 @@
+export interface Vehicle {
+  id: number;
+  placa: string;
+  modelo: string;
+  tipo: string;
+  ano: number;
+}
+
 export interface Trip {
   id?: number;
   veiculoId?: number;

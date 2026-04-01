@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Trip, DashboardMetrics, VehicleRanking, VolumeByType, PageResponse, MaintenanceEntry, CostProjection } from '../types';
+import type { Trip, DashboardMetrics, VehicleRanking, VolumeByType, PageResponse, MaintenanceEntry, CostProjection, Vehicle } from '../types';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
@@ -7,6 +7,11 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+export const getVehicles = async (): Promise<Vehicle[]> => {
+  const response = await api.get<Vehicle[]>('/veiculos');
+  return response.data;
+};
 
 export const getDashboardTotalKm = async (): Promise<DashboardMetrics> => {
   const response = await api.get<DashboardMetrics>('/dashboard/total-km');

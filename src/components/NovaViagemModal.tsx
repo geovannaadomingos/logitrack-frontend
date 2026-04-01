@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { Trip } from '../types';
+import type { Trip, Vehicle } from '../types';
 import { X, Save } from 'lucide-react';
-import { createTrip, updateTrip } from '../services/api';
+import { createTrip, updateTrip, getVehicles } from '../services/api';
 import { toLocalISOString } from '../utils/dateUtils';
 
 interface Props {
@@ -11,52 +11,56 @@ interface Props {
   tripToEdit?: Trip | null;
 }
 
-const MOCK_VEHICLES = [
-  { id: 1, placa: 'ABC-1234', modelo: 'Volvo FH 540', tipo: 'PESADO' },
-  { id: 2, placa: 'XYZ-9876', modelo: 'Scania R450', tipo: 'PESADO' },
-  { id: 3, placa: 'LMN-4567', modelo: 'Mercedes-Benz Actros', tipo: 'PESADO' },
-  { id: 4, placa: 'KJH-1122', modelo: 'Iveco Stralis 460', tipo: 'PESADO' },
-  { id: 5, placa: 'HGT-3344', modelo: 'VW Meteor 29.520', tipo: 'PESADO' },
-  { id: 6, placa: 'AAA-0000', modelo: 'Fiorino 1.4', tipo: 'LEVE' }
-];
-
 export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Props) {
   const [formData, setFormData] = useState<Trip>({
-    veiculoId: MOCK_VEHICLES[0].id,
-    veiculoPlaca: MOCK_VEHICLES[0].placa,
-    veiculoModelo: MOCK_VEHICLES[0].modelo,
-    veiculoTipo: MOCK_VEHICLES[0].tipo,
+    veiculoId: 0,
+    veiculoPlaca: '',
+    veiculoModelo: '',
+    veiculoTipo: '',
     dataSaida: '',
     dataChegada: '',
     origem: '',
     destino: '',
     kmPercorrida: 0,
   });
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (tripToEdit) {
-      setFormData({
-        ...tripToEdit,
-        // Backend might use different date format, but we need YYYY-MM-DDTHH:mm for datetime-local
-        dataSaida: tripToEdit.dataSaida?.substring(0, 16) || '',
-        dataChegada: tripToEdit.dataChegada?.substring(0, 16) || '',
-      });
-    } else {
-      setFormData({
-        veiculoId: MOCK_VEHICLES[0].id,
-        veiculoPlaca: MOCK_VEHICLES[0].placa,
-        veiculoModelo: MOCK_VEHICLES[0].modelo,
-        veiculoTipo: MOCK_VEHICLES[0].tipo,
-        dataSaida: '',
-        dataChegada: '',
-        origem: '',
-        destino: '',
-        kmPercorrida: 0,
-      });
+    const fetchVehicles = async () => {
+      try {
+        setLoadingVehicles(true);
+        const data = await getVehicles();
+        setVehicles(data);
+        
+        if (tripToEdit) {
+          setFormData({
+            ...tripToEdit,
+            dataSaida: tripToEdit.dataSaida?.substring(0, 16) || '',
+            dataChegada: tripToEdit.dataChegada?.substring(0, 16) || '',
+          });
+        } else if (data.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            veiculoId: data[0].id,
+            veiculoPlaca: data[0].placa,
+            veiculoModelo: data[0].modelo,
+            veiculoTipo: data[0].tipo,
+          }));
+        }
+      } catch (err) {
+        console.error('Erro ao buscar veículos:', err);
+        setError('Não foi possível carregar a lista de veículos.');
+      } finally {
+        setLoadingVehicles(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchVehicles();
     }
-    setError(null);
   }, [tripToEdit, isOpen]);
 
   if (!isOpen) return null;
@@ -65,7 +69,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
     const { name, value } = e.target;
     
     if (name === 'veiculoPlaca') {
-      const selected = MOCK_VEHICLES.find(v => v.placa === value);
+      const selected = vehicles.find(v => v.placa === value);
       if (selected) {
         setFormData(prev => ({
           ...prev,
@@ -86,7 +90,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.origem || !formData.destino || !formData.dataSaida || !formData.dataChegada || formData.kmPercorrida <= 0) {
+    if (!formData.veiculoId || !formData.origem || !formData.destino || !formData.dataSaida || !formData.dataChegada || formData.kmPercorrida <= 0) {
       setError('Por favor, preencha todos os campos corretamente.');
       return;
     }
@@ -104,7 +108,6 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
       return;
     }
 
-    // New validation: No past dates for new trips (unless editing)
     if (!tripToEdit && saida < new Date()) {
       setError('A data de saída não pode estar no passado.');
       return;
@@ -122,7 +125,6 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
       setLoading(true);
       setError(null);
 
-      // Clean payload for backend
       const payload = {
         id: tripToEdit?.id,
         veiculoId: formData.veiculoId,
@@ -152,7 +154,6 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
     }
   };
 
-  // Helper to get current time in YYYY-MM-DDTHH:mm format for 'min' attribute
   const nowISO = new Date().toISOString().substring(0, 16);
 
   return (
@@ -181,11 +182,18 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
                 name="veiculoPlaca"
                 value={formData.veiculoPlaca}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                disabled={loadingVehicles}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:bg-slate-50"
               >
-                {MOCK_VEHICLES.map((v) => (
-                  <option key={v.id} value={v.placa}>{v.modelo} ({v.placa})</option>
-                ))}
+                {loadingVehicles ? (
+                  <option disabled>Carregando veículos...</option>
+                ) : vehicles.length === 0 ? (
+                  <option disabled>Nenhum veículo cadastrado</option>
+                ) : (
+                  vehicles.map((v) => (
+                    <option key={v.id} value={v.placa}>{v.modelo} ({v.placa})</option>
+                  ))
+                )}
               </select>
             </div>
             
@@ -265,7 +273,7 @@ export function NovaViagemModal({ isOpen, onClose, onSuccess, tripToEdit }: Prop
             <button
               type="submit"
               className="px-4 py-2 bg-brand-600 text-white rounded-md font-medium hover:bg-brand-700 transition-colors flex items-center justify-center min-w-[120px]"
-              disabled={loading}
+              disabled={loading || loadingVehicles || vehicles.length === 0}
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
