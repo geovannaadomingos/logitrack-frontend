@@ -8,10 +8,10 @@ const api = axios.create({
   },
 });
 
-export const getVehicles = async (): Promise<Vehicle[]> => {
+export async function getVehicles(): Promise<Vehicle[]> {
   const response = await api.get<Vehicle[]>('/veiculos');
   return response.data;
-};
+}
 
 export const getDashboardTotalKm = async (): Promise<DashboardMetrics> => {
   const response = await api.get<DashboardMetrics>('/dashboard/total-km');
