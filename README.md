@@ -12,10 +12,13 @@
 ## Screenshots
 
 ### Dashboard (Visão Geral)
-![Dashboard](public/screenshots/dashboard.webp)
+![Dashboard](public/screenshots/dashboard.png)
 
-### Gestão de Viagens
-![Gestão de Viagens](public/screenshots/listagem_viagens.webp)
+### Lista de Viagens
+![Lista de Viagens](public/screenshots/listagem_viagens.png)
+
+### Adição de Viagens
+![Adição de Viagens](public/screenshots/nova_viagem.png)
 
 ---
 
@@ -157,9 +160,9 @@ src/
 
 ## Melhorias Futuras
 
-- [ ] **Autenticação**: Implementação de login seguro (JWT).
-- [ ] **Filtros Avançados**: Busca dinâmica por data, placa e motorista.
-- [ ] **Exportação**: Geração de relatórios em PDF/Excel.
+- **Autenticação**: Implementação de login seguro (JWT).
+- **Filtros Avançados**: Busca dinâmica por data, placa e motorista.
+- **Exportação**: Geração de relatórios em PDF/Excel.
 
 ## Testes (Futuro)
 
