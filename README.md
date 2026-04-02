@@ -1,129 +1,174 @@
 # LogiTrack - Sistema de Gestão de Frota
 
-LogiTrack é um frontend para gestão de frotas, desenvolvido com **React**, **TypeScript** e **Tailwind CSS**. O sistema consome uma API Spring Boot para fornecer visibilidade em tempo real sobre quilometragem, rankings de veículos, volumes por categoria, cronogramas de manutenção e projeções financeiras.
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-##  Funcionalidades Implementadas
+**LogiTrack** é uma solução moderna de frontend desenvolvida para otimizar o monitoramento e a gestão de frotas logísticas. O sistema oferece uma interface rica para visualização de métricas críticas, permitindo o acompanhamento de quilometragem, rankings de veículos e cronogramas de manutenção em tempo real.
 
-- **Dashboard de Analytics**: Visão consolidada com métricas críticas:
-  - **KM Total**: Soma de toda a quilometragem percorrida pela frota.
-  - **Volume por Categoria**: Distribuição de viagens entre veículos Leves e Pesados.
-  - **Ranking de Veículos**: Listagem dos veículos com maior rodagem (Top KM).
-  - **Cronograma de Manutenção**: Próximas 5 manutenções preventivas/corretivas agendadas.
-  - **Projeção Financeira**: Estimativa de custos para o mês atual baseada em dados históricos.
-- **Gestão de Viagens (CRUD)**:
-  - Listagem completa de viagens com suporte a **paginação via backend**.
-  - Fluxo de criação e **edição** de viagens com preenchimento dinâmico.
-  - **Exclusão de registros** com confirmação de segurança.
-  - **Validação de Regras de Negócio**: Impedimento de datas no passado e garantia de ordem cronológica (saída < chegada).
+---
 
-##  Endpoints Consumidos
+## Screenshots
 
-A aplicação consome os seguintes recursos da API REST:
+### Dashboard (Visão Geral)
+![Dashboard](public/screenshots/dashboard.webp)
 
-- `GET /dashboard/total-km`: Recupera a quilometragem total e resumo de viagens.
-- `GET /dashboard/volume-por-tipo`: Agrupamento de volume por categoria de veículo.
-- `GET /dashboard/ranking-veiculos`: Ranking ordenado de veículos por KM.
-- `GET /dashboard/proximas-manutencoes`: Lista de manutenções futuras.
-- `GET /dashboard/projecao-custo`: Dados para o gráfico/card financeiro.
-- `GET /viagens`: Listagem paginada de todas as operações.
-- `POST /viagens`: Registro de novos trajetos no sistema.
-- `PUT /viagens/{id}`: Atualização de dados de uma viagem existente.
-- `DELETE /viagens/{id}`: Remoção definitiva de um registro de viagem.
-- `GET /veiculos`: Listagem de veículos cadastrados para seleção em novos trajetos.
+### Gestão de Viagens
+![Gestão de Viagens](public/screenshots/listagem_viagens.webp)
 
-##  Como Executar o Projeto Localmente
+---
 
-Siga os passos abaixo para configurar e rodar o frontend em sua máquina:
+## Endpoints Consumidos
+
+A integração com o backend é realizada através dos seguintes recursos:
+
+- `GET /dashboard/total-km`: Métricas globais de quilometragem.
+- `GET /dashboard/volume-por-tipo`: Distribuição por categoria de frota.
+- `GET /dashboard/ranking-veiculos`: Ranking de performance por veículo.
+- `GET /dashboard/proximas-manutencoes`: Agenda de manutenções futuras.
+- `GET /dashboard/projecao-custo`: Dados financeiros projetados.
+- `GET /viagens`: Listagem paginada de operações.
+- `POST /viagens`: Registro de novos trajetos.
+- `PUT /viagens/{id}`: Atualização de dados existentes.
+- `DELETE /viagens/{id}`: Remoção de registros operacionais.
+- `GET /veiculos`: Catálogo de veículos disponíveis.
+
+---
+
+## Funcionalidades
+
+- **Métricas de Analytics**:
+  - `Distância Percorrida Total`: Somatório global de KM.
+  - `Volume por Categoria`: Classificação entre frotas Leves e Pesadas.
+  - `Top Fleet (Ranking)`: Identificação dos veículos com maior rodagem.
+- **Ecossistema de Manutenção**: Listagem inteligente das próximas intervenções agendadas.
+- **Controle Financeiro**: Projeção de custos operacionais baseada em dados históricos.
+- **Gestão de Operações (CRUD)**:
+  - Listagem paginada e eficiente.
+  - Criação e edição de viagens com validações avançadas.
+  - Exclusão segura com confirmação.
+
+---
+
+## Stack Técnica
+
+- **Core**: [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **API Client**: [Axios](https://axios-http.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+
+---
+
+## Configuração e Instalação
 
 ### Pré-requisitos
-- **Node.js** (versão 18 ou superior)
-- **npm** (ou Yarn/pnpm)
+- **Node.js**: v18+
+- **Backend**: Certifique-se de que o [LogiTrack Backend](https://github.com/geovannaadomingos/logitrack-backend) esteja rodando.
 
 ### Passo a Passo
 
-1. **Clonar o Repositório**
+1. **Clone o repositório**
    ```bash
    git clone https://github.com/geovannaadomingos/logitrack-frontend.git
    cd logitrack-frontend
    ```
 
-2. **Instalar Dependências**
+2. **Instale as dependências**
    ```bash
    npm install
    ```
 
-3. **Configuração da API**
-   O projeto está configurado para se conectar à API local em `http://localhost:8080/api/v1`. 
-
-   > [!IMPORTANT]
-   > Para o pleno funcionamento do dashboard e das listagens, é necessário que o **LogiTrack Backend** esteja em execução. 
-   > Acesse as instruções de configuração do servidor aqui: [LogiTrack Backend Repo](https://github.com/geovannaadomingos/logitrack-backend)
-
-4. **Executar em Modo de Desenvolvimento**
+3. **Inicie o servidor de desenvolvimento**
    ```bash
    npm run dev
    ```
-   O sistema estará disponível em [http://localhost:5173](http://localhost:5173).
-
-5. **Gerar Build de Produção**
-   ```bash
-   npm run build
-   ```
 
 ---
 
-##  Decisões Técnicas e Arquitetura
+## Variáveis de Ambiente
 
-### Ferramentas Escolhidas
-- **Vite**: Escolhido como build tool pela sua velocidade extrema de HMR (Hot Module Replacement) e configuração simplificada para TypeScript.
-- **Tailwind CSS (v3)**: Utilizado para garantir um desenvolvimento de UI rápido, consistente e altamente customizável, mantendo o bundle final leve.
-- **Axios**: Preferido em relação ao `fetch` nativo por facilitar a configuração de instâncias globais (Base URL), interceptores e tratamento simplificado de erros JSON.
-- **Lucide React**: Biblioteca de ícones leve e moderna para uma interface visual profissional.
+O projeto utiliza variáveis de ambiente para definir a URL da API, facilitando a troca entre ambientes (desenvolvimento, homologação, produção).
 
-### Arquitetura do Projeto
-O projeto segue uma estrutura organizada por responsabilidades:
-- `src/components`: Componentes de UI reutilizáveis (Navbar, Sidebar, Modais).
-- `src/pages`: Componentes de nível de página (Dashboard, Viagens).
-- `src/services`: Camada de comunicação com a API, centralizando todos os endpoints em um único local.
-- `src/types`: Definições globais de interfaces TypeScript, garantindo segurança de tipos em toda a aplicação.
+Crie um arquivo `.env` na raiz do projeto:
 
-### Decisões de Design
-- **Single Page Application (SPA)**: Utilização de `react-router-dom` para navegação instantânea sem recarregamento de página.
-- **Fallbacks Visuais**: Implementação de estados de "Sem Dados", "Carregando" e tratamento de erros para garantir que a interface nunca pareça quebrada, mesmo com baixa conectividade ou ausência de registros na API.
+```env
+VITE_API_URL=http://localhost:8080/api/v1
+```
 
-##  Tratamento de Erros e Estados
-
-- **Loading States**: Feedback visual (spinners/esqueletos) durante o carregamento de dados da API.
-- **Empty States**: Mensagens amigáveis e orientações quando não há dados retornados para rankings ou manutenções.
-- **Fallback de Dados Inválidos**: Implementação de tratamento rigoroso para campos nulos ou corrompidos, exibindo "-" ou valores padrão para evitar quebras na UI.
-- **Formatação de Dados**: Parsing robusto de datas (PT-BR) e moedas (BRL) para garantir uma experiência localizada e precisa.
-
-##  Desafios Técnicos Resolvidos
-
-- **Padronização de Datas (ISO vs BR)**: Implementação de uma camada utilitária de parsing para suportar formatos tradicionais brasileiros (dd/MM/yyyy) vindos de inputs/API e convertê-los para objetos `Date` válidos em browsers.
-- **Gerenciamento de Tipagem com API Real**: Sincronização de interfaces TypeScript com os DTOs do Spring Boot, garantindo que o contrato entre as camadas fosse respeitado.
-- **Sincronização de Veículos**: Substituição progressiva de dados mockados por integração real com o banco de dados de veículos.
-- **Integração com Paginação Backend**: Implementação de controle de estado para navegação entre páginas, consumindo metadados de paginação padrão do Spring Data.
-
-##  Diferenciais
-
-- **Arquitetura Escalável**: Separação clara entre serviços (API), utilitários, tipos e componentes.
-- **Segurança com TypeScript**: Uso extensivo de tipos para reduzir erros em tempo de execução.
-- **UI Premium**: Design moderno com Tailwind CSS focado em usabilidade e estética (Clean UI).
-- **Performance**: Uso de Vite para builds otimizados e bundle reduzido.
+No código, a configuração é consumida dinamicamente:
+```ts
+baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'
+```
 
 ---
 
-##  Integração com o Backend
+## Fluxo de Dados
 
-Este frontend foi desenvolvido para atuar em total sinergia com o [LogiTrack Backend](https://github.com/geovannaadomingos/logitrack-backend), um ecossistema robusto construído com:
-- **Spring Boot 3.4**: Framework principal para a API REST.
-- **PostgreSQL**: Banco de dados relacional para persistência de veículos e viagens.
-- **Flyway**: Gerenciamento de migrações de banco de dados.
+A arquitetura garante uma separação clara de responsabilidades seguindo o fluxo:
 
-A comunicação é feita de forma assíncrona, respeitando os contratos de dados (DTOs) definidos pelo servidor, o que permite uma experiência de usuário fluida e baseada em dados reais.
+1. **Interface (React)**: O usuário interage com os componentes (Dashboard, Modais).
+2. **Service Layer (`src/services/api.ts`)**: Chamadas HTTP são disparadas via Axios.
+3. **Backend (Spring Boot)**: A requisição é processada com validações de negócio.
+4. **Data Transfer (JSON)**: Os dados retornam formatados em DTOs.
+5. **Estado & UI**: O React atualiza o estado local e re-renderiza os componentes com os dados reais.
 
 ---
 
-##  Desenvolvido por
+## Regras de Negócio (Frontend)
+
+Para garantir a integridade dos dados antes mesmo do envio ao servidor, o frontend implementa:
+- **Validadores de Data**: Bloqueio de datas inválidas ou formatos incorretos.
+- **Ordem Cronológica**: A data de saída deve ser obrigatoriamente anterior à data de chegada.
+- **Consistência de KM**: A distância percorrida deve ser sempre maior que zero.
+- **Campos Obrigatórios**: Validação rigorosa de todos os campos essenciais antes da liberação do botão de salvar.
+
+---
+
+## Deploy
+
+O frontend está preparado para ser hospedado em plataformas como **Vercel** ou **Netlify**.
+
+### Build de Produção
+```bash
+npm run build
+```
+
+### Configuração Recomendada (ex: Netlify)
+- **Build command**: `npm run build`
+- **Publish directory**: `dist`
+- **Variáveis de Ambiente**: Configure `VITE_API_URL` apontando para a sua API em produção.
+
+---
+
+## Arquitetura do Projeto
+
+```text
+src/
+├── components/   # Componentes de UI (Modais, Sidebar, Tabelas)
+├── pages/        # Telas da aplicação (Dashboard, Viagens)
+├── services/     # Integração com API (Axios instance)
+├── types/        # Definições de interfaces TypeScript
+└── utils/        # Funções auxiliares (Máscaras, Formatação de data)
+```
+
+---
+
+## Melhorias Futuras
+
+- [ ] **Autenticação**: Implementação de login seguro (JWT).
+- [ ] **Filtros Avançados**: Busca dinâmica por data, placa e motorista.
+- [ ] **Exportação**: Geração de relatórios em PDF/Excel.
+
+## Testes (Futuro)
+
+Planejado para garantir a robustez do sistema:
+- **Unitários & Integração**: Uso de [Jest](https://jestjs.io/) e [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) para componentes e hooks.
+- **E2E**: Implementação de fluxos críticos com [Cypress](https://www.cypress.io/).
+
+---
+
+## Autor
+
 **Geovanna Domingos** - [GitHub](https://github.com/geovannaadomingos)

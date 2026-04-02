@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { Trip, DashboardMetrics, VehicleRanking, VolumeByType, PageResponse, MaintenanceEntry, CostProjection, Vehicle } from '../types';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1', // fallback para dev local
   headers: {
     'Content-Type': 'application/json',
   },
